@@ -10,7 +10,6 @@ from sklearn.metrics import accuracy_score # to measure how good we are
 
 def extract_feature(file_name):
 
-
     with soundfile.SoundFile(file_name) as sound_file:
         X = sound_file.read(dtype="float32")
         sample_rate = sound_file.samplerate
@@ -27,6 +26,12 @@ def extract_feature(file_name):
 
         mel = np.mean(librosa.feature.melspectrogram(X, sr=sample_rate).T,axis=0)
         result = np.hstack((result, mel))
+
+        contrast = np.mean(librosa.feature.spectral_contrast(S=stft, sr=sample_rate).T,axis=0)
+        result = np.hstack((result, contrast))
+
+        tonnetz = np.mean(librosa.feature.tonnetz(y=librosa.effects.harmonic(X), sr=sample_rate).T,axis=0)
+        result = np.hstack((result, tonnetz))
 
     return result
 
@@ -59,6 +64,7 @@ def load_data(test_size=0.25):
             continue
 
         features = extract_feature(file)
+        print(features)
         # add to data
         X.append(features)
         y.append(emotion)
