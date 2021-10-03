@@ -1,13 +1,21 @@
 audioread==2.1.9
+autopep8==1.5.7
 cffi==1.14.6
+click==8.0.1
+colorama==0.4.4
 decorator==5.0.9
+importlib-metadata==4.8.1
 joblib==1.0.1
+keras==2.6.0
 librosa==0.6.3
 llvmlite==0.31.0
+nltk==3.6.3
 numba==0.48.0
 numpy==1.19.5
 PyAudio @ file:///D:/code/github/Speech/PyAudio-0.2.11-cp37-cp37m-win_amd64.whl
+pycodestyle==2.7.0
 pycparser==2.20
+regex==2021.9.30
 resampy==0.2.2
 scikit-learn==0.24.2
 scipy==1.7.1
@@ -16,3 +24,7 @@ sklearn==0.0
 SoundFile==0.9.0
 SpeechRecognition==3.8.1
 threadpoolctl==2.2.0
+toml==0.10.2
+tqdm==4.62.3
+typing-extensions==3.10.0.2
+zipp==3.6.0
