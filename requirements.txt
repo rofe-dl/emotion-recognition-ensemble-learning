@@ -12,7 +12,6 @@ llvmlite==0.31.0
 nltk==3.6.3
 numba==0.48.0
 numpy==1.19.5
-PyAudio @ file:///D:/code/github/Speech/PyAudio-0.2.11-cp37-cp37m-win_amd64.whl
 pycodestyle==2.7.0
 pycparser==2.20
 regex==2021.9.30
