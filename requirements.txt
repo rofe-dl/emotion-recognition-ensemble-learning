@@ -9,9 +9,9 @@ joblib==1.0.1
 keras==2.6.0
 librosa==0.6.3
 llvmlite==0.31.0
-nltk==3.6.3
+nltk==3.6.7
 numba==0.48.0
-numpy==1.19.5
+numpy==1.22.1
 pycodestyle==2.7.0
 pycparser==2.20
 regex==2021.9.30
