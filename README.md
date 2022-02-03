@@ -23,7 +23,7 @@ Make sure you have Python 3.7 installed and using it.
     ```
 1. Install necessary libraries
     ```
-    pip install -r requitements.txt
+    pip install -r requirements.txt
     pip install PyAudio-0.2.11-cp37-cp37m-win_amd64.whl
     ```
 
