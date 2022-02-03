@@ -1,7 +1,6 @@
 # Emotion Recognition from Speech & Text using Ensemble Learning
 
 ## Setup Instructions
-Make sure you have Python 3.7 installed and using it.
 
 1. Clone the repository with 
     ```
@@ -24,6 +23,6 @@ Make sure you have Python 3.7 installed and using it.
 1. Install necessary libraries
     ```
     pip install -r requirements.txt
-    pip install PyAudio-0.2.11-cp37-cp37m-win_amd64.whl
+    pip install PyAudio-0.2.11-cp37-cp37m-win_amd64.whl #depends on your python version (37, 38 or 39)
     ```
 
