@@ -34,7 +34,6 @@ pkg_resources==0.0.0
 protobuf==3.19.4
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
-PyAudio==0.2.11
 pycodestyle==2.7.0
 pycparser==2.20
 regex==2021.9.30
