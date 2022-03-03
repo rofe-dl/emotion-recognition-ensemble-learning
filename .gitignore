@@ -1,4 +1,5 @@
 datasets/
+config.ini
 .vscode/
 
 # Byte-compiled / optimized / DLL files
