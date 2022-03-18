@@ -8,6 +8,10 @@ from sklearn.model_selection import train_test_split # for splitting training an
 from sklearn.neural_network import MLPClassifier # multi-layer perceptron model
 from sklearn.metrics import accuracy_score # to measure how good we are
 
+from configparser import ConfigParser
+config = ConfigParser()
+config.read('config.ini')
+
 def extract_feature(file_name):
 
     with soundfile.SoundFile(file_name) as sound_file:
@@ -55,7 +59,7 @@ AVAILABLE_EMOTIONS = {
 
 def load_data(test_size=0.25):
     X, y = [], []
-    for file in glob.glob("data/Actor_*/*.wav"):
+    for file in glob.glob(config['Dataset']['ravdess_dataset_location'] + "Actor_*/*.wav"):
 
         basename = os.path.basename(file)
         emotion = int2emotion[basename.split("-")[2]]

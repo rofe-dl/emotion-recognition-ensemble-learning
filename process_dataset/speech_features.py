@@ -9,7 +9,7 @@ config = ConfigParser()
 config.read('config.ini')
 
 def get_speech_features():
-    with open('speech_features_separated.pkl', 'rb') as f:
+    with open('speech_features_hstacked_ravdess.pkl', 'rb') as f:
         features = pickle.load(f)
     
     return features
@@ -20,25 +20,25 @@ def make_speech_features():
     file_list = df['path'].tolist()
     emotions = df['emotion'].tolist()
 
-    mfccss, chromas, mels, contrasts, tonnetzs, y= ([] for i in range(6))
-    # X, y = [], []
+    # mfccss, chromas, mels, contrasts, tonnetzs, y= ([] for i in range(6))
+    X, y = [], []
 
     for index, file_name in enumerate(file_list):
-        speech_features = _extract_features(config['Dataset']['dataset_location'] + file_name)
+        speech_features = _extract_features(config['Dataset']['iemocap_dataset_location'] + file_name)
 
-        mfccss.append(speech_features[0])
-        chromas.append(speech_features[1])
-        mels.append(speech_features[2])
-        contrasts.append(speech_features[3])
-        tonnetzs.append(speech_features[4])
+        # mfccss.append(speech_features[0])
+        # chromas.append(speech_features[1])
+        # mels.append(speech_features[2])
+        # contrasts.append(speech_features[3])
+        # tonnetzs.append(speech_features[4])
 
-        # X.append(speech_features)
+        X.append(speech_features)
         y.append(emotions[index])
         print('On file number ', index + 1, '/10039')
 
-    # features = (X, y)
-    features = (mfccss, chromas, mels, contrasts, tonnetzs, y)
-    with open('speech_features_separated.pkl', 'wb') as f:
+    features = (X, y)
+    # features = (mfccss, chromas, mels, contrasts, tonnetzs, y)
+    with open('speech_features_hstacked_iemocap_2.pkl', 'wb') as f:
         pickle.dump(features, f)
 
 def _extract_features(file_name):
@@ -48,7 +48,7 @@ def _extract_features(file_name):
         sample_rate = sound_file.samplerate
 
         stft = np.abs(librosa.stft(audio))
-        # result = np.array([])
+        result = np.array([])
 
         mfccs = np.mean(librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40).T, axis=0)
         chroma = np.mean(librosa.feature.chroma_stft(S=stft, sr=sample_rate).T,axis=0)
@@ -56,10 +56,10 @@ def _extract_features(file_name):
         contrast = np.mean(librosa.feature.spectral_contrast(S=stft, sr=sample_rate).T,axis=0)
         tonnetz = np.mean(librosa.feature.tonnetz(y=librosa.effects.harmonic(audio), sr=sample_rate).T,axis=0)
 
-        # result = np.hstack((result, mfccs, chroma, mel, contrast, tonnetz))
+        result = np.hstack((result, mfccs, chroma, mel, contrast, tonnetz))
 
-    return mfccs, chroma, mel, contrast, tonnetz
-    # return result
+    # return mfccs, chroma, mel, contrast, tonnetz
+    return result
 
 # make_speech_features()
 # get_speech_features()
