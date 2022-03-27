@@ -9,7 +9,7 @@ config = ConfigParser()
 config.read('config.ini')
 
 def get_speech_features():
-    with open('speech_features_hstacked_ravdess.pkl', 'rb') as f:
+    with open('data/speech_features_hstacked_iemocap.pkl', 'rb') as f:
         features = pickle.load(f)
     
     return features

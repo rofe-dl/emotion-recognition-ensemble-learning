@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
 
 data = get_speech_features()
 # df = pd.DataFrame(features, columns=['MFCCS, Chroma, Mel, Contrast, Tonnetz', 'Emotion'])
@@ -32,3 +33,4 @@ results = rfc.predict(x_test)
 accuracy = accuracy_score(y_test, results)
 
 print(accuracy)
+print(classification_report(y_test, results))
