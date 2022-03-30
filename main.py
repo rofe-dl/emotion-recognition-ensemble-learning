@@ -1,5 +1,7 @@
-from process_dataset.speech_features import get_speech_features
-import pickle
-import numpy as np
-import pandas as pd
+from . import ensemble
 
+def main():
+    ensemble.stacking_ensemble()
+    
+if __name__ == '__main__':
+    main()
