@@ -18,7 +18,7 @@ data = get_speech_features()
 # df['Length'] = df['MFCCS, Chroma, Mel, Contrast, Tonnetz'].apply(lambda x: len(x))
 # print(df['Length'].unique())
 
-x_train, x_test, y_train, y_test = train_test_split(np.array(data[0]), np.array(data[1]), random_state=42, test_size=0.1)
+x_train, x_test, y_train, y_test = train_test_split(np.array(data[0]), np.array(data[1]), random_state=42, test_size=0.2)
 
 rfc = RandomForestClassifier()
 
