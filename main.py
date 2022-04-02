@@ -18,8 +18,7 @@ import pickle
 #     pickle.dump(features, f)
 
 def main():
-    # ensemble.mlxtend_stacking_ensemble()
-    ensemble.sklearn_stacking_ensemble()
+    ensemble.stacking_ensemble()
     # ensemble.voting_ensemble()
     
 if __name__ == '__main__':
