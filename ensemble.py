@@ -21,6 +21,10 @@ def get_speech_models():
     
     return models
 
+def get_text_models():
+    pass
+
+
 class Ensemble:
 
     def __init__(self, models):
@@ -31,11 +35,13 @@ class Ensemble:
 
 class StackEnsemble(Ensemble):
 
-    def __init__(self, meta_cls, model_type):
-        if model_type == 'speech':
+    def __init__(self, meta_cls, data_type='speech'):
+        if data_type == 'speech':
             super().__init__(models=get_speech_models())
+        else:
+            super().__init__(models=get_text_models())
 
-        self.model_type = model_type
+        self.data_type = data_type
         self.meta_cls = meta_cls
         
     def fit(self, x_train, y_train):
@@ -59,11 +65,13 @@ class StackEnsemble(Ensemble):
 
 class VoteEnsemble(Ensemble):
     
-    def __init__(self, type, model_type):
-        if model_type == 'speech':
+    def __init__(self, type, data_type='speech'):
+        if data_type == 'speech':
             super().__init__(models=get_speech_models())
-        
-        self.model_type = model_type
+        else:
+            super().__init__(models=get_text_models())
+            
+        self.data_type = data_type
         self.type = type
     
     def fit(self, x_train, y_train):
@@ -86,11 +94,13 @@ class VoteEnsemble(Ensemble):
 
 class BlendEnsemble(Ensemble):
 
-    def __init__(self, meta_cls, model_type):
-        if model_type == 'speech':
+    def __init__(self, meta_cls, data_type='speech'):
+        if data_type == 'speech':
             super().__init__(models=get_speech_models())
-
-        self.model_type = model_type
+        else:
+            super().__init__(models=get_text_models())
+            
+        self.data_type = data_type
         self.meta_cls = meta_cls
 
     def fit(self, x_train, y_train, val_size=0.25):
@@ -119,7 +129,7 @@ class BlendEnsemble(Ensemble):
     
     # Needed to call cross_val_score on custom model
     def get_params(self, deep=True):
-        return {"meta_cls": self.meta_cls, "model_type": self.model_type}
+        return {"meta_cls": self.meta_cls, "data_type": self.data_type}
 
     # Needed to call cross_val_score on custom model
     def set_params(self, **parameters):

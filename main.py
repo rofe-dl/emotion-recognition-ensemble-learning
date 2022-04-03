@@ -6,46 +6,28 @@ from ensemble import StackEnsemble, VoteEnsemble, BlendEnsemble
 
 def main():
 
-    # print('Voting Ensemble')
-    # voter = VoteEnsemble(type='soft')
-    # # To check accuracy
-    # x_train, x_test, y_train, y_test = get_train_test()
-    # voter.fit(x_train, y_train)
-    # results = voter.predict(x_test)
-    # print(classification_report(y_test, results))
-    # # To cross validate
-    # x, y = get_data()
-    # scores = voter.cross_validate(x, y, cv=5, scoring='f1_macro')
-    # print(scores.mean())
-
-
-    # print('Stacking Ensemble')
-    # meta_cls = speech_logistic_regression.get_logistic_regression()
-    # stack = StackEnsemble(meta_cls=meta_cls)
-    # # To check accuracy
-    # x_train, x_test, y_train, y_test = get_train_test()
-    # stack.fit(x_train, y_train)
-    # results = stack.predict(x_test)
-    # print(classification_report(y_test, results))
-    # To cross validate
-    # x, y = get_data()
-    # scores = stack.cross_validate(x, y, cv=5, scoring='f1_macro')
-    # print(scores.mean())
-
-    print('Blending Ensemble')
     meta_cls = speech_logistic_regression.get_logistic_regression()
-    blend = BlendEnsemble(meta_cls=meta_cls, model_type='speech')
 
-    # # To check accuracy
-    # x_train, x_test, y_train, y_test = get_train_test()
-    # blend.fit(x_train, y_train)
-    # results = blend.predict(x_test)
-    # print(classification_report(y_test, results))
+    # model = BlendEnsemble(meta_cls=meta_cls, data_type='speech')
+    model = StackEnsemble(meta_cls=meta_cls, data_type='speech')
+    # model = VoteEnsemble(type='soft', data_type='speech')
+    # model = VoteEnsemble(type='hard', data_type='speech')
+
+    # To check accuracy
+    check_accuracy(model)
     # To cross validate
+    # cross_validate(model)
+
+def check_accuracy(model):
+    x_train, x_test, y_train, y_test = get_train_test()
+    model.fit(x_train, y_train)
+    results = model.predict(x_test)
+    print(classification_report(y_test, results))
+
+def cross_validate(model):
     x, y = get_data()
-    scores = blend.cross_validate(x, y, cv=5, scoring='f1_macro')
+    scores = model.cross_validate(x, y, cv=5, scoring='f1_macro')
     print(scores.mean())
 
-    
 if __name__ == '__main__':
     main()
