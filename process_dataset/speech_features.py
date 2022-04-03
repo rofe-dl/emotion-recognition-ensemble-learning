@@ -7,12 +7,8 @@ import pickle
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 
-from configparser import ConfigParser
-config = ConfigParser()
-config.read('config.ini')
-
 def _get_speech_features():
-    with open('data/speech_features_hstacked_iemocap_cleaned.pkl', 'rb') as f:
+    with open('data/speech_features_hstacked_iemocap_denoised.pkl', 'rb') as f:
         features = pickle.load(f)
     
     return features
@@ -33,32 +29,25 @@ def get_train_test():
     return x_train, x_test, y_train, y_test
 
 def make_speech_features():
-    df = pd.read_csv(config['Dataset']['dataset_details_location'])
+    df = pd.read_csv('iemocap_metadata.csv')
     df.loc[(df['emotion'] == 'exc'), 'emotion'] = 'hap'
     df.drop(df.loc[(df['emotion'] == 'xxx') | (df['emotion'] == 'dis') | (df['emotion'] == 'oth') | (df['emotion'] == 'fea') | (df['emotion'] == 'sur')].index, inplace = True)
 
     file_list = df['path'].tolist()
     emotions = df['emotion'].tolist()
 
-    # mfccss, chromas, mels, contrasts, tonnetzs, y= ([] for i in range(6))
     X, y = [], []
 
     for index, file_name in enumerate(file_list):
-        speech_features = _extract_features(config['Dataset']['iemocap_dataset_location'] + file_name)
-
-        # mfccss.append(speech_features[0])
-        # chromas.append(speech_features[1])
-        # mels.append(speech_features[2])
-        # contrasts.append(speech_features[3])
-        # tonnetzs.append(speech_features[4])
+        speech_features = _extract_features('data/IEMOCAP_dataset_denoised/' + file_name)
 
         X.append(speech_features)
         y.append(emotions[index])
-        print('On file number ', index + 1, '/7527')
+        print('On file number ', index + 1, '/', len(file_list))
 
     features = (X, y)
-    # features = (mfccss, chromas, mels, contrasts, tonnetzs, y)
-    with open('speech_features_hstacked_iemocap_2.pkl', 'wb') as f:
+
+    with open('speech_features_hstacked_iemocap_denoised.pkl', 'wb') as f:
         pickle.dump(features, f)
 
 def _extract_features(file_name):
@@ -78,7 +67,6 @@ def _extract_features(file_name):
 
         result = np.hstack((result, mfccs, chroma, mel, contrast, tonnetz))
 
-    # return mfccs, chroma, mel, contrast, tonnetz
     return result
 
 # make_speech_features()
