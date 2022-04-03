@@ -32,14 +32,6 @@ def get_train_test():
 
     return x_train, x_test, y_train, y_test
 
-def get_train_val_test():
-    x, y = get_data()
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
-
-    x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.25, random_state=42) # 0.25 x 0.8 = 0.2
-
-    return x_train, x_val, x_test, y_train, y_val, y_test
-
 def make_speech_features():
     df = pd.read_csv(config['Dataset']['dataset_details_location'])
     df.loc[(df['emotion'] == 'exc'), 'emotion'] = 'hap'
