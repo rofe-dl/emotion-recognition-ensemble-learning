@@ -15,6 +15,7 @@ def get_speech_models():
     mnb_ = speech_naive_bayes.get_naive_bayes()
     lr_ = speech_logistic_regression.get_logistic_regression()
     mlp_ = speech_mlp.get_mlp()
+    # TODO xgboost and lstm 
 
     models = [('Support Vector Machine', svm_), ('Random Forest Classifier', rfc_), ('Multinomial Naive Bayes', mnb_),
                 ('Logistic Regression', lr_), ('MLP Classifier', mlp_)]
@@ -22,6 +23,8 @@ def get_speech_models():
     return models
 
 def get_text_models():
+    
+    # TODO xgboost and lstm 
     pass
 
 

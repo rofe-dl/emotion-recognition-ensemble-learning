@@ -19,19 +19,14 @@ def trim(file_name):
         sample_rate = sound_file.samplerate
 
     audio, sr = librosa.load(old_file_path, sr=sample_rate, mono=True)
-    clips = librosa.effects.split(audio, top_db=30)
-
-    wav_data = []
-
-    for c in clips:
-        data=audio[c[0] : c[1]]
-        wav_data.extend(data)
+    clip = librosa.effects.trim(audio, top_db=30)
 
     path_to_new_file = 'data/IEMOCAP_dataset_denoised_trimmed/' + file_name
     if not os.path.exists(os.path.dirname(path_to_new_file)):
         os.makedirs(os.path.dirname(path_to_new_file))
 
-    sf.write(path_to_new_file, wav_data, sr)
+    # sf.write(path_to_new_file, wav_data, sr)
+    sf.write(path_to_new_file, clip[0], sr)
 
 if __name__ == '__main__':
     main()
