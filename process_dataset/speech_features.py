@@ -8,7 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 
 def _get_speech_features():
-    with open('data/ravdess.pkl', 'rb') as f:
+    with open('data/all_features.pkl', 'rb') as f:
         features = pickle.load(f)
     
     return features
@@ -17,7 +17,7 @@ def get_data():
     data = _get_speech_features()
     x = np.array(data[0])
     y = np.array(data[1])
-
+    
     x = MinMaxScaler().fit_transform(x)
 
     return x, y
@@ -47,33 +47,41 @@ def make_speech_features():
 
     features = (X, y)
 
-    with open('data/ravdess.pkl', 'wb') as f:
+    with open('data/all_features.pkl', 'wb') as f:
         pickle.dump(features, f)
 
 def _extract_features(file_name):
-    signal, sr = librosa.load(file_name, sr=22050)
-    mfccs = np.mean(librosa.feature.mfcc(y=signal, n_fft=2048, hop_length=512, n_mfcc=100, sr=sr).T, axis=0)
-
-    stft = np.abs(librosa.stft(signal))
-    chroma = np.mean(librosa.feature.chroma_stft(S=stft, sr=sr).T,axis=0)
-    mel = np.mean(librosa.feature.melspectrogram(y=signal, sr=sr).T,axis=0)
 
     result = np.array([])
-    result = np.hstack((result, mfccs, chroma, mel))
-    # with SoundFile(file_name) as sound_file:
-    #     audio = sound_file.read(dtype="float32")
-    #     sample_rate = sound_file.samplerate
 
-    #     stft = np.abs(librosa.stft(audio))
-    #     result = np.array([])
+    with SoundFile(file_name) as sound_file:
+        audio = sound_file.read(dtype="float32")
+        sample_rate = sound_file.samplerate
 
-    #     mfccs = np.mean(librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40).T, axis=0)
-    #     # chroma = np.mean(librosa.feature.chroma_stft(S=stft, sr=sample_rate).T,axis=0)
-    #     # mel = np.mean(librosa.feature.melspectrogram(y=audio, sr=sample_rate).T,axis=0)
-    #     # contrast = np.mean(librosa.feature.spectral_contrast(S=stft, sr=sample_rate).T,axis=0)
-    #     # tonnetz = np.mean(librosa.feature.tonnetz(y=librosa.effects.harmonic(audio), sr=sample_rate).T,axis=0)
+        stft = np.abs(librosa.stft(audio))
+        result = np.array([])
 
-    #     # result = np.hstack((result, mfccs, chroma, mel, contrast, tonnetz))
+        mfccs = np.mean(librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40).T, axis=0)
+        chroma = np.mean(librosa.feature.chroma_stft(S=stft, sr=sample_rate).T,axis=0)
+        mel = np.mean(librosa.feature.melspectrogram(y=audio, sr=sample_rate).T,axis=0)
+        contrast = np.mean(librosa.feature.spectral_contrast(S=stft, sr=sample_rate).T,axis=0)
+        # tonnetz = np.mean(librosa.feature.tonnetz(y=librosa.effects.harmonic(audio), sr=sample_rate).T,axis=0)
+
+        pitches = np.mean(librosa.piptrack(y=audio, sr=sample_rate)[0].T, axis=0)
+
+        rms = librosa.feature.rms(y=audio)[0]
+        rms = np.array([np.mean(rms), np.median(rms), np.max(rms), np.min(rms), np.std(rms), np.average(rms), np.var(rms)])
+
+        zcr = librosa.feature.zero_crossing_rate(y=audio)[0]
+        zcr = np.array([np.mean(zcr), np.median(zcr), np.max(zcr), np.min(zcr), np.std(zcr), np.average(zcr), np.var(zcr)])
+
+        spectral_rolloff = librosa.feature.spectral_rolloff(y=audio,sr=sample_rate)[0]
+        spectral_rolloff = np.array([np.mean(spectral_rolloff), np.median(spectral_rolloff), np.max(spectral_rolloff), np.min(spectral_rolloff), np.std(spectral_rolloff), np.average(spectral_rolloff), np.var(spectral_rolloff)])
+
+        spectral_flux = librosa.onset.onset_strength(y=audio, sr=sample_rate)
+        spectral_flux = np.array([np.mean(spectral_flux), np.median(spectral_flux), np.max(spectral_flux), np.min(spectral_flux), np.std(spectral_flux), np.average(spectral_flux), np.var(spectral_flux)])
+
+        result = np.hstack((result, mfccs, chroma, mel, contrast, pitches, rms, zcr, spectral_rolloff, spectral_flux))
 
     return result
 
