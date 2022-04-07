@@ -2,6 +2,7 @@ from sklearn.model_selection import cross_val_score
 import numpy as np
 from speech_models import speech_logistic_regression, speech_mlp, speech_naive_bayes
 from speech_models import speech_random_forest, speech_svm, speech_xgboost
+from text_models import text_logistic_regression, text_mlp, text_naive_bayes, text_random_forest, text_svm, text_xgboost
 from sklearn.ensemble import VotingClassifier, StackingClassifier
 from sklearn.model_selection import train_test_split
 
@@ -10,30 +11,42 @@ warnings.filterwarnings('ignore')
 
 def get_speech_models():
 
-    svm_ = speech_svm.get_svm()
-    rfc_ = speech_random_forest.get_random_forest()
-    mnb_ = speech_naive_bayes.get_naive_bayes()
-    lr_ = speech_logistic_regression.get_logistic_regression()
-    mlp_ = speech_mlp.get_mlp()
-    xgb_ = speech_xgboost.get_xgb()
+    models = list()
 
-    # TODO xgboost and lstm 
+    models.append(('Support Vector Machine', speech_svm.get_svm()))
+    models.append(('Random Forest Classifier', speech_random_forest.get_random_forest()))
+    models.append(('Multinomial Naive Bayes', speech_naive_bayes.get_naive_bayes()))
+    models.append(('Logistic Regression', speech_logistic_regression.get_logistic_regression()))
+    models.append(('MLP Classifier', speech_mlp.get_mlp()))
+    models.append(('XGBoost', speech_xgboost.get_xgb()))
 
-    models = [('Support Vector Machine', svm_), ('Random Forest Classifier', rfc_), ('Multinomial Naive Bayes', mnb_),
-                ('Logistic Regression', lr_), ('MLP Classifier', mlp_), ('XGBoost', xgb_)]
-    
+    # TODO lstm 
+
     return models
 
 def get_text_models():
     
-    # TODO xgboost and lstm 
-    pass
+    models = list()
+
+    models.append(('Support Vector Machine', text_svm.get_svm()))
+    models.append(('Random Forest Classifier', text_random_forest.get_random_forest()))
+    models.append(('Multinomial Naive Bayes', text_naive_bayes.get_naive_bayes()))
+    models.append(('Logistic Regression', text_logistic_regression.get_logistic_regression()))
+    models.append(('MLP Classifier', text_mlp.get_mlp()))
+    models.append(('XGBoost', text_xgboost.get_xgb()))
+
+    # TODO lstm 
+
+    return models
 
 
 class Ensemble:
 
-    def __init__(self, models):
-        self.models = models
+    def __init__(self, data_type):
+        if data_type == 'speech':
+            self.models = get_speech_models()
+        else:
+            self.models = get_text_models()
 
     def save(self):
         pass
@@ -41,10 +54,7 @@ class Ensemble:
 class StackEnsemble(Ensemble):
 
     def __init__(self, meta_cls, data_type='speech'):
-        if data_type == 'speech':
-            super().__init__(models=get_speech_models())
-        else:
-            super().__init__(models=get_text_models())
+        super().__init__(data_type=data_type)
 
         self.data_type = data_type
         self.meta_cls = meta_cls
@@ -71,10 +81,7 @@ class StackEnsemble(Ensemble):
 class VoteEnsemble(Ensemble):
     
     def __init__(self, type, data_type='speech'):
-        if data_type == 'speech':
-            super().__init__(models=get_speech_models())
-        else:
-            super().__init__(models=get_text_models())
+        super().__init__(data_type=data_type)
             
         self.data_type = data_type
         self.type = type
@@ -100,10 +107,7 @@ class VoteEnsemble(Ensemble):
 class BlendEnsemble(Ensemble):
 
     def __init__(self, meta_cls, data_type='speech'):
-        if data_type == 'speech':
-            super().__init__(models=get_speech_models())
-        else:
-            super().__init__(models=get_text_models())
+        super().__init__(data_type=data_type)
             
         self.data_type = data_type
         self.meta_cls = meta_cls

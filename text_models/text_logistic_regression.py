@@ -1,10 +1,10 @@
-from process_dataset.speech_features import get_train_test
+from process_dataset.text_features import get_train_test
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 
 def get_logistic_regression():
-    return LogisticRegression(solver='newton-cg', random_state=42, n_jobs=-1)
+    return LogisticRegression(solver='liblinear', random_state=42, n_jobs=-1)
 
 def main():
     lr = get_logistic_regression()
