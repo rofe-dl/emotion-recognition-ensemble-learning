@@ -10,9 +10,9 @@ def main():
     meta_cls = speech_logistic_regression.get_logistic_regression()
 
     # model = BlendEnsemble(meta_cls=meta_cls, data_type='speech')
-    model = StackEnsemble(meta_cls=meta_cls, data_type='speech')
+    # model = StackEnsemble(meta_cls=meta_cls, data_type='speech')
     # model = VoteEnsemble(type='soft', data_type='speech')
-    # model = VoteEnsemble(type='hard', data_type='speech')
+    model = VoteEnsemble(type='hard', data_type='speech')
 
     # To check accuracy
     check_accuracy(model)

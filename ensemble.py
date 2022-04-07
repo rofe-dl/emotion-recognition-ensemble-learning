@@ -1,7 +1,7 @@
 from sklearn.model_selection import cross_val_score
 import numpy as np
 from speech_models import speech_logistic_regression, speech_mlp, speech_naive_bayes
-from speech_models import speech_random_forest, speech_svm
+from speech_models import speech_random_forest, speech_svm, speech_xgboost
 from sklearn.ensemble import VotingClassifier, StackingClassifier
 from sklearn.model_selection import train_test_split
 
@@ -15,10 +15,12 @@ def get_speech_models():
     mnb_ = speech_naive_bayes.get_naive_bayes()
     lr_ = speech_logistic_regression.get_logistic_regression()
     mlp_ = speech_mlp.get_mlp()
+    xgb_ = speech_xgboost.get_xgb()
+
     # TODO xgboost and lstm 
 
     models = [('Support Vector Machine', svm_), ('Random Forest Classifier', rfc_), ('Multinomial Naive Bayes', mnb_),
-                ('Logistic Regression', lr_), ('MLP Classifier', mlp_)]
+                ('Logistic Regression', lr_), ('MLP Classifier', mlp_), ('XGBoost', xgb_)]
     
     return models
 
