@@ -9,9 +9,9 @@ with sr.Microphone() as source:
     audio = r1.listen(source)
 
 # From file
-file = sr.AudioFile("dogs.wav")
-with file as source:
-    audio = r1.record(source)
+# file = sr.AudioFile("dogs.wav")
+# with file as source:
+#     audio = r1.record(source)
 
 try:
     print (r1.recognize_google(audio))

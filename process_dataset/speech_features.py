@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import resample, shuffle
 
 def _get_speech_features():
-    with open('data/all_features_down.pkl', 'rb') as f:
+    with open('data/all_features.pkl', 'rb') as f:
         features = pickle.load(f)
     
     return features
@@ -32,21 +32,8 @@ def get_train_test():
 def make_speech_features():
     df = pd.read_csv('iemocap_metadata.csv')
     df.loc[(df['emotion'] == 'exc'), 'emotion'] = 'hap'
+    df.loc[(df['emotion'] == 'fru'), 'emotion'] = 'ang'
     df.drop(df.loc[(df['emotion'] == 'xxx') | (df['emotion'] == 'dis') | (df['emotion'] == 'oth') | (df['emotion'] == 'fea') | (df['emotion'] == 'sur')].index, inplace = True)
-
-    fru_down = resample(df[df['emotion'] == 'fru'], replace=False, n_samples=1120, random_state=42)
-    neu_down = resample(df[df['emotion'] == 'neu'], replace=False, n_samples=1120, random_state=42)
-    hap_down = resample(df[df['emotion'] == 'hap'], replace=False, n_samples=1120, random_state=42)
-    ang_down = df[df['emotion'] == 'ang']
-    sad_down = df[df['emotion'] == 'sad']
-
-    df = pd.concat([fru_down, neu_down, hap_down, ang_down, sad_down])
-    df = shuffle(df)
-    df.reset_index(inplace=True, drop=True)
-
-    counts = df['emotion'].value_counts()
-    print(counts)
-    print(df['path'].nunique())
 
     file_list = df['path'].tolist()
     emotions = df['emotion'].tolist()
@@ -62,7 +49,7 @@ def make_speech_features():
 
     features = (X, y)
 
-    with open('data/all_features_down.pkl', 'wb') as f:
+    with open('data/all_features.pkl', 'wb') as f:
         pickle.dump(features, f)
 
 def _extract_features(file_name):
