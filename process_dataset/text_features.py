@@ -10,7 +10,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, plot_confusion_matrix
 
 def _get_text_features():
-    with open('data/text_features_v2.pkl', 'rb') as f:
+    with open('data/text_features_v4.pkl', 'rb') as f:
         features = pickle.load(f)
     
     return features
@@ -29,7 +29,7 @@ def get_train_test():
     return x_train, x_test, y_train, y_test
 
 def make_text_features():
-    df = pd.read_csv('data/data_final_clean_v4.csv')
+    df = pd.read_csv('data/data_final_clean_v2.csv')
     df.drop(df.loc[(df['Emotion'] == 'xxx') | (df['Emotion'] == 'dis') | (df['Emotion'] == 'oth') | (df['Emotion'] == 'fea') | (df['Emotion'] == 'sur')].index, inplace = True)
     df.loc[(df['Emotion'] == 'exc'), 'Emotion'] = 'hap'
     df.loc[(df['Emotion'] == 'fru'), 'Emotion'] = 'ang'
@@ -42,7 +42,7 @@ def make_text_features():
 
     tup = (x_vectors, y_labels)
 
-    with open('data/text_features_v4.pkl', 'wb') as f:
+    with open('data/text_features_v2.pkl', 'wb') as f:
         pickle.dump(tup, f)
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import resample, shuffle
 
 def _get_speech_features():
-    with open('data/all_features.pkl', 'rb') as f:
+    with open('data/speech_features.pkl', 'rb') as f:
         features = pickle.load(f)
     
     return features
@@ -49,7 +49,7 @@ def make_speech_features():
 
     features = (X, y)
 
-    with open('data/all_features.pkl', 'wb') as f:
+    with open('data/speech_features.pkl', 'wb') as f:
         pickle.dump(features, f)
 
 def _extract_features(file_name):
@@ -67,8 +67,6 @@ def _extract_features(file_name):
         chroma = np.mean(librosa.feature.chroma_stft(S=stft, sr=sample_rate).T,axis=0)
         mel = np.mean(librosa.feature.melspectrogram(y=audio, sr=sample_rate).T,axis=0)
         contrast = np.mean(librosa.feature.spectral_contrast(S=stft, sr=sample_rate).T,axis=0)
-        # tonnetz = np.mean(librosa.feature.tonnetz(y=librosa.effects.harmonic(audio), sr=sample_rate).T,axis=0)
-
         pitches = np.mean(librosa.piptrack(y=audio, sr=sample_rate)[0].T, axis=0)
 
         rms = librosa.feature.rms(y=audio)[0]
