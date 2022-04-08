@@ -7,7 +7,7 @@ from text_models import text_logistic_regression, text_mlp, text_naive_bayes, te
 
 from sklearn.ensemble import VotingClassifier, StackingClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score, cross_validate
+from sklearn.model_selection import cross_validate
 
 import warnings
 warnings.filterwarnings('ignore') 
@@ -160,7 +160,7 @@ class BlendEnsemble(Ensemble):
 # Used to ensemble the speech and text ensembled models by soft voting
 class SpeechTextEnsemble(Ensemble):
     
-    def __init__(self, speech_model=None, text_model=None, fit_bases=True):
+    def __init__(self, speech_model=None, text_model=None, fit_bases=True, type='soft'):
         super().__init__(data_type=None)
 
         if fit_bases and (speech_model == None or text_model == None):
@@ -176,6 +176,7 @@ class SpeechTextEnsemble(Ensemble):
                 self._text_model = pickle.load(f)
 
         self._fit_bases = fit_bases
+        self.type = type
 
     def fit(self, x_train_speech, x_train_text, y_train):
 
@@ -195,27 +196,39 @@ class SpeechTextEnsemble(Ensemble):
             return avg_probas
 
         emotions = ['ang', 'hap', 'neu', 'sad']
-        #             0      1      2      3
-
         result = []
 
-        max_indices = np.argmax(avg_probas, axis=1)
-        for index in max_indices:
-            result.append(emotions[index])
+        if self.type == 'soft':
+            max_indices = np.argmax(avg_probas, axis=1)
+            for index in max_indices:
+                result.append(emotions[index])
+        else:
+            
+            for proba_speech, proba_text in zip(probas_speech, probas_text):
+                avg_proba = (proba_speech + proba_text) / 2
+                max_index_speech, max_index_text = np.argmax([proba_speech, proba_text], axis=1)
+
+                if max_index_speech != max_index_text:
+                    # speech model -> good at sad(3), neutral(2)
+                    # text model -> good at ang(0), hap(1)
+
+                    if max_index_speech in [2, 3] and max_index_text in [2, 3]:
+                        # only speech giving max proba at the emo they good at
+                        max_index = max_index_speech
+                    
+                    elif max_index_text in [0, 1] and max_index_speech in [0, 1]:
+                        # only text giving max proba at the emo they good at
+                        max_index = max_index_text
+
+                    else:
+                        max_index = np.argmax(avg_proba)
+
+                else:
+                    max_index = max_index_speech
+
+                result.append(emotions[max_index])
 
         return result
-
-    # Needed to call cross_val_score on custom model
-    def get_params(self, deep=True):
-        return {"_speech_model": self._speech_model, 
-                "_text_model": self._text_model,
-                "fit_bases": True}
-
-    # Needed to call cross_val_score on custom model
-    def set_params(self, **parameters):
-        for parameter, value in parameters.items():
-            setattr(self, parameter, value)
-        return self
         
 
 
