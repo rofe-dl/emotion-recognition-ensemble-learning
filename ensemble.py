@@ -60,23 +60,23 @@ class StackEnsemble(Ensemble):
         self.meta_cls = meta_cls
         
     def fit(self, x_train, y_train):
-        self.init_stacker()
-        self.stacker.fit(x_train, y_train)
+        self.init_inner()
+        self.inner.fit(x_train, y_train)
     
-    def init_stacker(self):
-        self.stacker = StackingClassifier(
+    def init_inner(self):
+        self.inner = StackingClassifier(
             estimators=self.models,
             final_estimator=self.meta_cls,
             stack_method='predict_proba',
             cv=5, verbose=1,
             n_jobs=-1)
 
-    def predict(self, x_test):
-        return self.stacker.predict(x_test)
+    def predict(self, x_test, proba=False):
+        return self.inner.predict_proba(x_test) if proba else self.stacker.predict(x_test)
     
     def cross_validate(self, x, y, cv, scoring):
-        self.init_stacker()
-        return cross_val_score(self.stacker, x, y, cv=cv, scoring=scoring, n_jobs=-1)
+        self.init_inner()
+        return cross_val_score(self.inner, x, y, cv=cv, scoring=scoring, n_jobs=-1)
 
 class VoteEnsemble(Ensemble):
     
@@ -87,22 +87,22 @@ class VoteEnsemble(Ensemble):
         self.type = type
     
     def fit(self, x_train, y_train):
-        self.init_voter()
-        self.voter.fit(x_train, y_train)
+        self.init_inner()
+        self.inner.fit(x_train, y_train)
     
-    def init_voter(self):
-        self.voter = VotingClassifier(
+    def init_inner(self):
+        self.inner = VotingClassifier(
             estimators=self.models, 
             voting=self.type,
             verbose=True, 
             n_jobs=-1)
 
-    def predict(self, x_test):
-        return self.voter.predict(x_test)
+    def predict(self, x_test, proba=False):
+        return self.inner.predict_proba(x_test) if proba else self.voter.predict(x_test)
 
     def cross_validate(self, x, y, cv, scoring):
-        self.init_voter()
-        return cross_val_score(self.voter, x, y, cv=cv, scoring=scoring, n_jobs=-1)
+        self.init_inner()
+        return cross_val_score(self.inner, x, y, cv=cv, scoring=scoring, n_jobs=-1)
 
 class BlendEnsemble(Ensemble):
 
