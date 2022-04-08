@@ -59,8 +59,9 @@ def main():
         fields = ["Sentence", "Emotion", "Session", "Session"]
         rows = final
 
-        with open("data/data_test.csv", "a") as f:
+        with open("data/text_data.csv", "a") as f:
             write = csv.writer(f)
+            write.writerow(fields)
             write.writerows(rows)
 
 if __name__ == '__main__':

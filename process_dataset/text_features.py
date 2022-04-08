@@ -28,7 +28,7 @@ def get_train_test():
     return x_train, x_test, y_train, y_test
 
 def make_text_features():
-    df = pd.read_csv('data/data_final_clean.csv')
+    df = pd.read_csv('data/text_data_clean.csv')
     df.drop(df.loc[(df['Emotion'] == 'xxx') | (df['Emotion'] == 'dis') | (df['Emotion'] == 'oth') | (df['Emotion'] == 'fea') | (df['Emotion'] == 'sur')].index, inplace = True)
     df.loc[(df['Emotion'] == 'exc'), 'Emotion'] = 'hap'
     df.loc[(df['Emotion'] == 'fru'), 'Emotion'] = 'ang'
