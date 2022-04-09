@@ -4,7 +4,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 
 def get_logistic_regression():
-    return LogisticRegression(solver='liblinear', random_state=42, n_jobs=-1)
+    return LogisticRegression(solver='liblinear', random_state=42)
 
 def main():
     lr = get_logistic_regression()

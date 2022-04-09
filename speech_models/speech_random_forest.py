@@ -4,7 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 
 def get_random_forest():
-    return RandomForestClassifier(random_state=42, n_jobs=-1)
+    return RandomForestClassifier(random_state=42)
 
 def main():
     rfc = get_random_forest()

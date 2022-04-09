@@ -32,8 +32,10 @@ def get_train_test():
 def make_speech_features():
     df = pd.read_csv('iemocap_metadata.csv')
     df.loc[(df['emotion'] == 'exc'), 'emotion'] = 'hap'
-    df.loc[(df['emotion'] == 'fru'), 'emotion'] = 'ang'
-    df.drop(df.loc[(df['emotion'] == 'xxx') | (df['emotion'] == 'dis') | (df['emotion'] == 'oth') | (df['emotion'] == 'fea') | (df['emotion'] == 'sur')].index, inplace = True)
+    # df.loc[(df['emotion'] == 'fru'), 'emotion'] = 'ang'
+    df.drop(df.loc[(df['emotion'] == 'xxx') | (df['emotion'] == 'dis') | (df['emotion'] == 'oth') | (df['emotion'] == 'fea') | (df['emotion'] == 'sur') | (df['emotion'] == 'fru')].index, inplace = True)
+
+    df = shuffle(df, random_state=42)
 
     file_list = df['path'].tolist()
     emotions = df['emotion'].tolist()

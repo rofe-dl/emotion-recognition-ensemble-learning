@@ -7,6 +7,7 @@ import pickle
 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.utils import shuffle
 
 def _get_text_features():
     with open('data/text_features.pkl', 'rb') as f:
@@ -28,10 +29,12 @@ def get_train_test():
     return x_train, x_test, y_train, y_test
 
 def make_text_features():
-    df = pd.read_csv('data/text_data_clean.csv')
-    df.drop(df.loc[(df['Emotion'] == 'xxx') | (df['Emotion'] == 'dis') | (df['Emotion'] == 'oth') | (df['Emotion'] == 'fea') | (df['Emotion'] == 'sur')].index, inplace = True)
+    df = pd.read_csv('data/text_data.csv')
+    df.drop(df.loc[(df['Emotion'] == 'xxx') | (df['Emotion'] == 'dis') | (df['Emotion'] == 'oth') | (df['Emotion'] == 'fea') | (df['Emotion'] == 'sur') | (df['Emotion'] == 'fru')].index, inplace = True)
     df.loc[(df['Emotion'] == 'exc'), 'Emotion'] = 'hap'
-    df.loc[(df['Emotion'] == 'fru'), 'Emotion'] = 'ang'
+    # df.loc[(df['Emotion'] == 'fru'), 'Emotion'] = 'ang'
+
+    df = shuffle(df, random_state=42)
 
     x_features = df["Cleaned"]
     y_labels = df["Emotion"]
