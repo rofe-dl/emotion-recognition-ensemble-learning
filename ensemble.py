@@ -6,6 +6,7 @@ from speech_models import speech_logistic_regression, speech_mlp, speech_naive_b
 from text_models import text_logistic_regression, text_mlp, text_naive_bayes, text_random_forest, text_svm, text_xgboost
 
 from sklearn.ensemble import VotingClassifier, StackingClassifier
+from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_validate
 
@@ -164,7 +165,7 @@ class SpeechTextEnsemble(Ensemble):
         super().__init__(data_type=None)
 
         if fit_bases and (speech_model == None or text_model == None):
-            raise ValueError("speech_model or text_model can't be None when fit_bases is True")
+            raise ValueError("Speech_model or text_model can't be None when fit_bases is True")
 
         if fit_bases:
             self._speech_model = speech_model
@@ -229,7 +230,44 @@ class SpeechTextEnsemble(Ensemble):
                 result.append(emotions[max_index])
 
         return result
-        
+    
+    def cross_validate(self, x_speech, x_text, y, cv):
+        if len(x_speech) < cv:
+            raise ValueError("Dataset is too small for k")
+
+        accuracies, f1s, precisions, recalls = (list() for i in range(4))
+        x_speech_split = np.array_split(x_speech, cv)
+        x_text_split = np.array_split(x_text, cv)
+        y_split = np.array_split(y, cv)
+
+        for i in range(cv):
+            x_speech_test = x_speech_split[i]
+            x_text_test = x_text_split[i]
+            y_test = y_split[i]
+
+            x_speech_train_split = [split for index, split in enumerate(x_speech_split) if index != i]
+            x_text_train_split = [split for index, split in enumerate(x_text_split) if index != i]
+            y_train_split = [split for index, split in enumerate(y_split) if index != i]
+
+            x_speech_train = np.concatenate(x_speech_train_split)
+            x_text_train = np.concatenate(x_text_train_split)
+            y_train = np.concatenate(y_train_split)
+
+            self.fit(x_speech_train, x_text_train, y_train)
+            result = self.predict(x_speech_test, x_text_test)
+
+            accuracies.append(accuracy_score(y_test, result))
+            f1s.append(f1_score(y_test, result, average='macro'))
+            precisions.append(precision_score(y_test, result, average='macro'))
+            recalls.append(recall_score(y_test, result, average='macro'))
+
+
+        return {
+            'test_accuracy': accuracies,
+            'test_f1_macro': f1s,
+            'test_precision_macro': precisions,
+            'test_recall_macro': recalls
+        }
 
 
     
