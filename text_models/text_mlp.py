@@ -12,7 +12,7 @@ def main():
     mlp.fit(x_train, y_train)
 
     results = mlp.predict(x_test)
-    print(classification_report(y_test, results))
+    print(classification_report(y_test, results, digits=4))
 
 if __name__ == '__main__':
     main()

@@ -12,7 +12,7 @@ def main():
     lr.fit(x_train, y_train)
 
     results = lr.predict(x_test)
-    print(classification_report(y_test, results))
+    print(classification_report(y_test, results, digits=4))
 
 if __name__ == '__main__':
     main()
