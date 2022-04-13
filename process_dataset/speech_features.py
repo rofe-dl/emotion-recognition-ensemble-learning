@@ -18,8 +18,6 @@ def get_data():
     data = _get_speech_features()
     x = np.array(data[0])
     y = np.array(data[1])
-    
-    x = MinMaxScaler().fit_transform(x)
 
     return x, y
 
@@ -27,12 +25,15 @@ def get_train_test():
     x, y = get_data()
     x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=42, test_size=0.2)
 
+    scaler = MinMaxScaler()
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
+
     return x_train, x_test, y_train, y_test
 
 def make_speech_features():
     df = pd.read_csv('iemocap_metadata.csv')
     df.loc[(df['emotion'] == 'exc'), 'emotion'] = 'hap'
-    # df.loc[(df['emotion'] == 'fru'), 'emotion'] = 'ang'
     df.drop(df.loc[(df['emotion'] == 'xxx') | (df['emotion'] == 'dis') | (df['emotion'] == 'oth') | (df['emotion'] == 'fea') | (df['emotion'] == 'sur') | (df['emotion'] == 'fru')].index, inplace = True)
 
     df = shuffle(df, random_state=42)

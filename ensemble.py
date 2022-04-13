@@ -9,6 +9,8 @@ from sklearn.ensemble import VotingClassifier, StackingClassifier
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_validate
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.feature_extraction.text import CountVectorizer
 
 import warnings
 warnings.filterwarnings('ignore') 
@@ -24,7 +26,7 @@ def get_speech_models():
     models.append(('MLP Classifier', speech_mlp.get_mlp()))
     models.append(('XGBoost', speech_xgboost.get_xgb()))
 
-    # TODO lstm 
+    # TODO lstm
 
     return models
 
@@ -82,10 +84,7 @@ class StackEnsemble(Ensemble):
 
     def predict(self, x_test, proba=False):
         return self.inner.predict_proba(x_test) if proba else self.inner.predict(x_test)
-    
-    def cross_validate(self, x, y, cv, scoring):
-        self.init_inner()
-        return cross_validate(self.inner, x, y, cv=cv, scoring=scoring, n_jobs=-1)
+
 
 class VoteEnsemble(Ensemble):
     
@@ -108,10 +107,6 @@ class VoteEnsemble(Ensemble):
 
     def predict(self, x_test, proba=False):
         return self.inner.predict_proba(x_test) if proba else self.inner.predict(x_test)
-
-    def cross_validate(self, x, y, cv, scoring):
-        self.init_inner()
-        return cross_validate(self.inner, x, y, cv=cv, scoring=scoring, n_jobs=-1)
 
 class BlendEnsemble(Ensemble):
 
@@ -144,21 +139,8 @@ class BlendEnsemble(Ensemble):
 
         meta_x = np.hstack(meta_x)
         return self.meta_cls.predict(meta_x)
-    
-    # Needed to call cross_val_score on custom model
-    def get_params(self, deep=True):
-        return {"meta_cls": self.meta_cls, "data_type": self.data_type}
 
-    # Needed to call cross_val_score on custom model
-    def set_params(self, **parameters):
-        for parameter, value in parameters.items():
-            setattr(self, parameter, value)
-        return self
-
-    def cross_validate(self, x, y, cv, scoring):
-        return cross_validate(self, x, y, cv=cv, scoring=scoring, n_jobs=-1)
-
-# Used to ensemble the speech and text ensembled models by soft voting
+# Used to ensemble the speech and text ensembled models
 class SpeechTextEnsemble(Ensemble):
     
     def __init__(self, speech_model=None, text_model=None, fit_bases=True, type='soft'):
@@ -245,13 +227,17 @@ class SpeechTextEnsemble(Ensemble):
             x_text_test = x_text_split[i]
             y_test = y_split[i]
 
-            x_speech_train_split = [split for index, split in enumerate(x_speech_split) if index != i]
-            x_text_train_split = [split for index, split in enumerate(x_text_split) if index != i]
-            y_train_split = [split for index, split in enumerate(y_split) if index != i]
+            x_speech_train = np.concatenate([split for index, split in enumerate(x_speech_split) if index != i])
+            x_text_train = np.concatenate([split for index, split in enumerate(x_text_split) if index != i])
+            y_train = np.concatenate([split for index, split in enumerate(y_split) if index != i])
 
-            x_speech_train = np.concatenate(x_speech_train_split)
-            x_text_train = np.concatenate(x_text_train_split)
-            y_train = np.concatenate(y_train_split)
+            scaler = MinMaxScaler()
+            x_speech_train = scaler.fit_transform(x_speech_train)
+            x_speech_test = scaler.transform(x_speech_test)
+
+            vectorizer = CountVectorizer(min_df=5, ngram_range=(1, 2))
+            x_text_train = vectorizer.fit_transform(x_text_train)
+            x_text_test = vectorizer.transform(x_text_test)
 
             self.fit(x_speech_train, x_text_train, y_train)
             result = self.predict(x_speech_test, x_text_test)
