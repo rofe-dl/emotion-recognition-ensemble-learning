@@ -1,59 +1,15 @@
 import numpy as np
-import pickle
+import copy
 import os
+import pickle
 
-from speech_models import speech_logistic_regression, speech_mlp, speech_naive_bayes, speech_random_forest, speech_svm, speech_xgboost
-from text_models import text_logistic_regression, text_mlp, text_naive_bayes, text_random_forest, text_svm, text_xgboost
-
-from sklearn.ensemble import VotingClassifier, StackingClassifier
-from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_validate
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import cross_val_predict, train_test_split
+from sklearn.ensemble import VotingClassifier
 
 import warnings
-warnings.filterwarnings('ignore') 
+warnings.filterwarnings('ignore')
 
-def get_speech_models():
-
-    models = list()
-
-    models.append(('Support Vector Machine', speech_svm.get_svm()))
-    models.append(('Random Forest Classifier', speech_random_forest.get_random_forest()))
-    models.append(('Multinomial Naive Bayes', speech_naive_bayes.get_naive_bayes()))
-    models.append(('Logistic Regression', speech_logistic_regression.get_logistic_regression()))
-    models.append(('MLP Classifier', speech_mlp.get_mlp()))
-    models.append(('XGBoost', speech_xgboost.get_xgb()))
-
-    # TODO lstm
-
-    return models
-
-def get_text_models():
-    
-    models = list()
-
-    models.append(('Support Vector Machine', text_svm.get_svm()))
-    models.append(('Random Forest Classifier', text_random_forest.get_random_forest()))
-    models.append(('Multinomial Naive Bayes', text_naive_bayes.get_naive_bayes()))
-    models.append(('Logistic Regression', text_logistic_regression.get_logistic_regression()))
-    models.append(('MLP Classifier', text_mlp.get_mlp()))
-    models.append(('XGBoost', text_xgboost.get_xgb()))
-
-    # TODO lstm 
-
-    return models
-
-class Ensemble:
-
-    def __init__(self, data_type):
-        if data_type == 'speech':
-            self.models = get_speech_models()
-        elif data_type == 'text':
-            self.models = get_text_models()
-        else:
-            self.models = None
+class Ensemble():
 
     def save(self, file_name):
         if not os.path.exists('trained_models'):
@@ -62,133 +18,10 @@ class Ensemble:
         with open(f"trained_models/{file_name}", 'wb') as f:
             pickle.dump(self, f)
 
-class StackEnsemble(Ensemble):
-
-    def __init__(self, meta_cls, data_type='speech'):
-        super().__init__(data_type=data_type)
-
-        self.data_type = data_type
-        self.meta_cls = meta_cls
-        
-    def fit(self, x_train, y_train):
-        self.init_inner()
-        self.inner.fit(x_train, y_train)
-    
-    def init_inner(self):
-        self.inner = StackingClassifier(
-            estimators=self.models,
-            final_estimator=self.meta_cls,
-            stack_method='predict_proba',
-            cv=5, verbose=1,
-            n_jobs=-1)
-
-    def predict(self, x_test, proba=False):
-        return self.inner.predict_proba(x_test) if proba else self.inner.predict(x_test)
-
-
-class VoteEnsemble(Ensemble):
-    
-    def __init__(self, type, data_type='speech'):
-        super().__init__(data_type=data_type)
-            
-        self.data_type = data_type
-        self.type = type
-    
-    def fit(self, x_train, y_train):
-        self.init_inner()
-        self.inner.fit(x_train, y_train)
-    
-    def init_inner(self):
-        self.inner = VotingClassifier(
-            estimators=self.models, 
-            voting=self.type,
-            verbose=True, 
-            n_jobs=-1)
-
-    def predict(self, x_test, proba=False):
-        return self.inner.predict_proba(x_test) if proba else self.inner.predict(x_test)
-
-class BlendEnsemble(Ensemble):
-
-    def __init__(self, meta_cls, data_type='speech'):
-        super().__init__(data_type=data_type)
-            
-        self.data_type = data_type
-        self.meta_cls = meta_cls
-
-    def fit(self, x_train, y_train, val_size=0.25):
-
-        # creates validation set
-        x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=val_size, random_state=42) # 0.25 x 0.8 = 0.2
-        meta_x = list()
-
-        for model_name, model in self.models:
-            model.fit(x_train, y_train)
-            y_pred = model.predict_proba(x_val)
-            meta_x.append(y_pred)
-
-        meta_x = np.hstack(meta_x)
-        self.meta_cls.fit(meta_x, y_val)
-
-    def predict(self, x_test):
-        meta_x = list()
-
-        for model_name, model in self.models:
-            y_pred = model.predict_proba(x_test)
-            meta_x.append(y_pred)
-
-        meta_x = np.hstack(meta_x)
-        return self.meta_cls.predict(meta_x)
-
-# Used to ensemble the speech and text ensembled models
-class SpeechTextEnsemble(Ensemble):
-    
-    def __init__(self, speech_model=None, text_model=None, fit_bases=True):
-        super().__init__(data_type=None)
-
-        if fit_bases and (speech_model == None or text_model == None):
-            raise ValueError("Speech_model or text_model can't be None when fit_bases is True")
-
-        if fit_bases:
-            self._speech_model = speech_model
-            self._text_model = text_model
-        else:
-            with open('trained_models/stack_speech.pkl', 'rb') as f:
-                self._speech_model = pickle.load(f)
-            with open('trained_models/stack_text.pkl', 'rb') as f:
-                self._text_model = pickle.load(f)
-
-        self._fit_bases = fit_bases
-        self.type = type
-
-    def fit(self, x_train_speech, x_train_text, y_train):
-
-        if self._fit_bases:
-            self._speech_model.fit(x_train_speech, y_train)
-            self._text_model.fit(x_train_text, y_train)
-
-
-    def predict(self, x_test_speech, x_test_text, proba=False):
-
-        probas_speech = self._speech_model.predict(x_test_speech, proba=True)
-        probas_text = self._text_model.predict(x_test_text, proba=True)
-
-        avg_probas = (probas_speech + probas_text) / 2
-
-        if proba:
-            return avg_probas
-
-        emotions = ['ang', 'hap', 'neu', 'sad']
-        result = []
-
-        max_indices = np.argmax(avg_probas, axis=1)
-        for index in max_indices:
-            result.append(emotions[index])
-        
-
-        return result
-    
     def cross_validate(self, x_speech, x_text, y, cv):
+
+        # wrong impementation, does overfitting because of refit
+
         if len(x_speech) < cv:
             raise ValueError("Dataset is too small for k")
 
@@ -230,5 +63,163 @@ class SpeechTextEnsemble(Ensemble):
             'test_recall_macro': recalls
         }
 
+class VoteEnsemble(Ensemble):
 
+    def __init__(self, speech_models, text_models, type):
+        self.speech_models = speech_models
+        self.text_models = text_models
+        self.type = type
+        self.voter_speech = VotingClassifier(
+            estimators=self.speech_models, 
+            voting=self.type,
+            verbose=True,
+            n_jobs=-1
+        )
+        self.voter_text = VotingClassifier(
+            estimators=self.text_models, 
+            voting=self.type,
+            verbose=True,
+            n_jobs=-1
+        )
+
+    def fit(self, x_speech, x_text, y):
+
+        self.voter_speech.fit(x_speech, y)
+        self.voter_text.fit(x_text, y)
+
+    def predict(self, x_speech, x_text, proba=False):
+
+        probas_speech = self.voter_speech.predict_proba(x_speech)
+        probas_text = self.voter_text.predict_proba(x_text)
+
+        avg_probas = (probas_speech + probas_text) / 2
+
+        if proba:
+            return avg_probas
+
+        emotions = ['ang', 'hap', 'neu', 'sad']
+        result = []
+
+        max_indices = np.argmax(avg_probas, axis=1)
+        for index in max_indices:
+            result.append(emotions[index])
+
+        return result
+
+
+class BlendEnsemble(Ensemble):
+
+    def __init__(self, speech_models, text_models, meta_cls):
+        self.speech_models = speech_models
+        self.text_models = text_models
+        self.meta_cls = meta_cls
     
+    def fit(self, x_speech, x_text, y, val_size=0.25):
+        meta_x = None
+
+        # creates validation sets
+        x_speech_train, x_speech_val, y_train, y_val = train_test_split(x_speech, y, test_size=val_size, random_state=42) # 0.25 x 0.8 = 0.2
+        x_text_train, x_text_val, y_train, y_val = train_test_split(x_text, y, test_size=val_size, random_state=42) # 0.25 x 0.8 = 0.2
+
+        for name, model in self.speech_models:
+            print(f"Training {name} (Speech) ...")
+            model.fit(x_speech_train, y_train)
+            probas = model.predict_proba(x_speech_val)
+
+            if meta_x is None:
+                meta_x = probas
+            else:
+                meta_x = np.column_stack((meta_x, probas))
+
+        for name, model in self.text_models:
+            print(f"Training {name} (Text) ...")
+            model.fit(x_text_train, y_train)
+            probas = model.predict_proba(x_text_val)
+
+            if meta_x is None:
+                meta_x = probas
+            else:
+                meta_x = np.column_stack((meta_x, probas))
+
+        print("Training Meta Classifier ...")
+        self.meta_cls.fit(meta_x, y_val)
+
+    def predict(self, x_speech, x_text, proba=False):
+        meta_x = list()
+
+        for name, model in self.speech_models:
+            probas = model.predict_proba(x_speech)
+            meta_x.append(probas)
+        
+        for name, model in self.text_models:
+            probas = model.predict_proba(x_text)
+            meta_x.append(probas)
+
+        meta_x = np.hstack(meta_x)
+
+        return self.meta_cls.predict(meta_x) if not proba else self.meta_cls.predict_proba(meta_x)
+
+
+class StackEnsemble(Ensemble):
+    
+    def __init__ (self, speech_models, text_models, meta_cls, cv, n_jobs):
+        self.speech_models = speech_models
+        self.text_models = text_models
+        self.meta_cls = meta_cls
+        self.cv = cv
+        self.n_jobs = n_jobs
+
+    def fit(self, x_speech, x_text, y):
+
+        meta_x = None
+
+        speech_models = copy.deepcopy(self.speech_models)
+        text_models = copy.deepcopy(self.text_models)
+
+        for name, model in speech_models:
+            print(f"Training {name} (Speech) ...")
+            probas = cross_val_predict(
+                model, x_speech, y, cv=self.cv, 
+                n_jobs=self.n_jobs, method='predict_proba'
+            )
+
+            if meta_x is None:
+                meta_x = probas
+            else:
+                meta_x = np.column_stack((meta_x, probas)) # hstack also works
+        
+        for name, model in text_models:
+            print(f"Training {name} (Text) ...")
+            probas = cross_val_predict(
+                model, x_text, y, cv=self.cv, 
+                n_jobs=self.n_jobs, method='predict_proba'
+            )
+
+            if meta_x is None:
+                meta_x = probas
+            else:
+                meta_x = np.column_stack((meta_x, probas))
+
+        print("Training Meta Classifier ...")
+        self.meta_cls.fit(meta_x, y)
+
+        for name, model in self.speech_models:
+            print(f"Re-Training Base {name} (Speech) ...")
+            model.fit(x_speech, y)
+
+        for name, model in self.text_models:
+            print(f"Re-Training Base {name} (Text) ...")
+            model.fit(x_text, y)   
+
+    def predict(self, x_speech, x_text, proba=False):
+        meta_x = list()
+
+        for name, model in self.speech_models:
+            meta_x.append(model.predict_proba(x_speech))
+
+        for name, model in self.text_models:
+            meta_x.append(model.predict_proba(x_text))
+
+        meta_x = np.hstack(meta_x)
+        
+        return self.meta_cls.predict(meta_x) if not proba else self.meta_cls.predict_proba(meta_x)
