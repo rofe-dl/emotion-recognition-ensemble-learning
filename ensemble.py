@@ -143,7 +143,7 @@ class BlendEnsemble(Ensemble):
 # Used to ensemble the speech and text ensembled models
 class SpeechTextEnsemble(Ensemble):
     
-    def __init__(self, speech_model=None, text_model=None, fit_bases=True, type='soft'):
+    def __init__(self, speech_model=None, text_model=None, fit_bases=True):
         super().__init__(data_type=None)
 
         if fit_bases and (speech_model == None or text_model == None):
@@ -181,35 +181,10 @@ class SpeechTextEnsemble(Ensemble):
         emotions = ['ang', 'hap', 'neu', 'sad']
         result = []
 
-        if self.type == 'soft':
-            max_indices = np.argmax(avg_probas, axis=1)
-            for index in max_indices:
-                result.append(emotions[index])
-        else:
-            
-            for proba_speech, proba_text in zip(probas_speech, probas_text):
-                avg_proba = (proba_speech + proba_text) / 2
-                max_index_speech, max_index_text = np.argmax([proba_speech, proba_text], axis=1)
-
-                if max_index_speech != max_index_text:
-                    # speech model -> good at sad(3), neutral(2)
-                    # text model -> good at ang(0), hap(1)
-
-                    if max_index_speech in [2, 3] and max_index_text in [2, 3]:
-                        # only speech giving max proba at the emo they good at
-                        max_index = max_index_speech
-                    
-                    elif max_index_text in [0, 1] and max_index_speech in [0, 1]:
-                        # only text giving max proba at the emo they good at
-                        max_index = max_index_text
-
-                    else:
-                        max_index = np.argmax(avg_proba)
-
-                else:
-                    max_index = max_index_speech
-
-                result.append(emotions[max_index])
+        max_indices = np.argmax(avg_probas, axis=1)
+        for index in max_indices:
+            result.append(emotions[index])
+        
 
         return result
     

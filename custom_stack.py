@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+from multiprocessing import Pool
 
 class StackEnsembleCustom():
     
