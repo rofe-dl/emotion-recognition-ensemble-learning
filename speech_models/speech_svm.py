@@ -4,7 +4,10 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report
 
 def get_svm():
-    return SVC(kernel='linear', probability=True, random_state=42)
+    # return SVC(kernel='linear', probability=True, random_state=42)
+    return SVC(
+        C=20, decision_function_shape='ovo', degree=7, probability=True,
+        random_state=42, shrinking=False)
 
 def main():
     svm = get_svm()

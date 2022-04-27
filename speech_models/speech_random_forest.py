@@ -4,7 +4,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 
 def get_random_forest():
-    return RandomForestClassifier(random_state=42)
+    # return RandomForestClassifier(random_state=42)
+    return RandomForestClassifier(bootstrap=False, max_depth=120, max_features=0.3,
+                       min_samples_split=10, n_estimators=1500, n_jobs=-1,
+                       random_state=42)
 
 def main():
     rfc = get_random_forest()

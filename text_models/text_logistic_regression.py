@@ -4,7 +4,23 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 
 def get_logistic_regression():
-    return LogisticRegression(solver='liblinear', random_state=42)
+    # return LogisticRegression(solver='liblinear', random_state=42)
+    return LogisticRegression(**{
+        'C': 0.615848211066026, 
+        'class_weight': None, 
+        'dual': False, 
+        'fit_intercept': True, 
+        'intercept_scaling': 1, 
+        'l1_ratio': None, 
+        'max_iter': 300, 
+        'multi_class': 'auto', 
+        'n_jobs': None, 
+        'penalty': 'l2',
+        'solver': 'liblinear', 
+        'tol': 0.0001, 
+        'verbose': 0, 
+        'warm_start': False,
+        'random_state': 42})
 
 def main():
     lr = get_logistic_regression()

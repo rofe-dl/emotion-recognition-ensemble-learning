@@ -5,6 +5,8 @@ from sklearn.metrics import classification_report
 
 def get_mlp():
     return MLPClassifier(random_state=42, max_iter=5000)
+    # return MLPClassifier(alpha=0.07, hidden_layer_sizes=(140, 100, 60),
+    #           learning_rate='invscaling', max_iter=100, random_state=42)
 
 def main():
     mlp = get_mlp()
