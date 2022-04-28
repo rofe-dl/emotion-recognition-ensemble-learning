@@ -17,7 +17,7 @@ def get_logistic_regression():
         'n_jobs': None, 
         'penalty': 'l2',
         'solver': 'liblinear', 
-        'tol': 0.0001, 
+        'tol': 0.2, 
         'verbose': 0, 
         'warm_start': False,
         'random_state': 42})

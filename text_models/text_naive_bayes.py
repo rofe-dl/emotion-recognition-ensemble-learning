@@ -5,7 +5,7 @@ from sklearn.metrics import classification_report
 
 def get_naive_bayes():
     # return MultinomialNB()
-    return MultinomialNB(alpha=0.5, class_prior=None, fit_prior=True)
+    return MultinomialNB(alpha=0.275)
 
 def main():
     mnb = get_naive_bayes()

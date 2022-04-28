@@ -5,10 +5,9 @@ from sklearn.metrics import classification_report
 
 def get_mlp():
     # return MLPClassifier(random_state=42, max_iter=5000)
-
     return MLPClassifier(
         random_state=42, activation='relu',
-        alpha=0.5,hidden_layer_sizes=(150,),
+        alpha=0.35,hidden_layer_sizes=(150,),
         learning_rate='adaptive', solver='adam')
 
 def main():
