@@ -4,7 +4,7 @@ from xgboost import XGBClassifier
 from sklearn.metrics import classification_report
 
 def get_xgb():
-    return XGBClassifier(random_state=42)
+    return XGBClassifier(random_state=42, tree_method='gpu_hist')
 
 def main():
     xgb = get_xgb()
