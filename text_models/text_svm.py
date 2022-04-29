@@ -4,8 +4,8 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report
 
 def get_svm():
-    return SVC(kernel='linear', probability=True, random_state=42)
-    # return SVC(kernel='rbf', gamma='scale', C=1.85, probability=True, random_state=42)
+    # return SVC(kernel='linear', probability=True, random_state=42)
+    return SVC(kernel='rbf', gamma='scale', C=1.85, probability=True, random_state=42)
 
 def main():
     svm = get_svm()
