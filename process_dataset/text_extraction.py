@@ -2,6 +2,12 @@ import csv
 import os
 
 def main():
+    
+    fields = ["Sentence", "Emotion", "Session", "Session"]
+    with open("data/text_data.csv", "a") as f:
+        write = csv.writer(f)
+        write.writerow(fields)
+
     for i in range(1, 6):
         directory = f"data/IEMOCAP_dataset/Session{i}/dialog/transcriptions"
         directory1 = f"data/IEMOCAP_dataset/Session{i}/dialog/EmoEvaluation"
@@ -55,13 +61,10 @@ def main():
             final.append([transcripts[i], emotions[i],
                         ses_list_final[i], emo_ses_list[i]])
 
-
-        fields = ["Sentence", "Emotion", "Session", "Session"]
         rows = final
 
         with open("data/text_data.csv", "a") as f:
             write = csv.writer(f)
-            write.writerow(fields)
             write.writerows(rows)
 
 if __name__ == '__main__':
