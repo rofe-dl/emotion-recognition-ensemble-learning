@@ -1,4 +1,3 @@
-from distutils.log import Log
 from process_dataset.speech_features import get_train_test
 
 from sklearn.linear_model import LogisticRegression
