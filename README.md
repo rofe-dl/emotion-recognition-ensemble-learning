@@ -7,7 +7,7 @@ Code for our thesis (CSE400) where we tried multimodal emotion recognition from 
 * Stacking
 * Blending
 
-We have 6 models trained on speech data, and 6 models trained on text data. The findings of all 12 models are combined using the ensemble methods. The results are found in `main_all_models.ipynb`.
+We have 6 models trained on speech data, and 6 models trained on text data. The findings of all 12 models are combined using the ensemble methods. The results are found in `main.ipynb`.
 
 ## Setup Instructions
 
