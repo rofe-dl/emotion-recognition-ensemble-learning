@@ -1,6 +1,6 @@
 # Emotion Recognition from Speech & Text using Ensemble Learning
 
-Code for our thesis (CSE400) where we tried multimodal emotion recognition from speech and lexical features using an ensemble of different classifiers on the IEMOCAP dataset. For that, we tried different hetergoneneous ensemble learning techniques to compare and find the best ensemble. We covered the following techniques:
+Code for our thesis (CSE400) where we tried multimodal emotion recognition from speech and text features using an ensemble of different classifiers on the IEMOCAP dataset. For that, we tried different hetergoneneous ensemble learning techniques to compare and find the best ensemble. We covered the following techniques:
 
 * Hard Voting
 * Soft Voting
@@ -39,7 +39,7 @@ We have 6 models trained on speech data, and 6 models trained on text data. The 
     python3 -m process_dataset.speech_features
     python3 -m process_dataset.text_features
     ```
-1. Run either of the main .ipynb files for all_models (ensemble all models) or best_models (to ensemble the best 4 models from each speech and text)
+1. Run main.ipynb
 
 ## Individual Models
 

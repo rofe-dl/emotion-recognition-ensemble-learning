@@ -44,7 +44,11 @@ def k_fold():
     scoring = {'accuracy': 'accuracy',
            'f1_macro': 'f1_macro',
            'precision_macro': 'precision_macro',
-           'recall_macro' : 'recall_macro'}
+           'recall_macro' : 'recall_macro',
+           'f1_weighted' : 'f1_weighted',
+           'precision_weighted' : 'precision_weighted',
+           'recall_weighted' : 'recall_weighted'
+           }
     
     scores = cross_validate(pipeline, x, y, cv=5, scoring=scoring, n_jobs=-1)
 
@@ -52,6 +56,9 @@ def k_fold():
     print('F1 Macro: ', np.mean(scores['test_f1_macro']))
     print('Precision Macro: ', np.mean(scores['test_precision_macro']))
     print('Recall Macro: ', np.mean(scores['test_recall_macro']))
+    print('F1 Weighted: ', np.mean(scores['test_f1_weighted']))
+    print('Precision Weighted: ', np.mean(scores['test_precision_weighted']))
+    print('Recall Weighted: ', np.mean(scores['test_recall_weighted']))
 
 if __name__ == '__main__':
     print('On Train/Test Split', end='\n\n')

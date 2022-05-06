@@ -26,7 +26,7 @@ class Ensemble():
         if len(x_speech) < cv:
             raise ValueError("Dataset is too small for k")
 
-        accuracies, f1s, precisions, recalls = (list() for i in range(4))
+        accuracies, f1s_macro, f1s_weighted, precisions_macro, precisions_weighted, recalls_macro, recalls_weighted = (list() for i in range(7))
         x_speech_split = np.array_split(x_speech, cv)
         x_text_split = np.array_split(x_text, cv)
         y_split = np.array_split(y, cv)
@@ -52,16 +52,22 @@ class Ensemble():
             result = self.predict(x_speech_test, x_text_test)
 
             accuracies.append(accuracy_score(y_test, result))
-            f1s.append(f1_score(y_test, result, average='macro'))
-            precisions.append(precision_score(y_test, result, average='macro'))
-            recalls.append(recall_score(y_test, result, average='macro'))
+            f1s_macro.append(f1_score(y_test, result, average='macro'))
+            precisions_macro.append(precision_score(y_test, result, average='macro'))
+            recalls_macro.append(recall_score(y_test, result, average='macro'))
+            f1s_weighted.append(f1_score(y_test, result, average='weighted'))
+            precisions_weighted.append(precision_score(y_test, result, average='weighted'))
+            recalls_weighted.append(recall_score(y_test, result, average='weighted'))
 
 
         return {
             'test_accuracy': accuracies,
-            'test_f1_macro': f1s,
-            'test_precision_macro': precisions,
-            'test_recall_macro': recalls
+            'test_f1_macro': f1s_macro,
+            'test_precision_macro': precisions_macro,
+            'test_recall_macro': recalls_macro,
+            'test_f1_weighted': f1s_weighted,
+            'test_precision_weighted': precisions_weighted,
+            'test_recall_weighted': recalls_weighted
         }
 
 class VoteEnsemble(Ensemble):
